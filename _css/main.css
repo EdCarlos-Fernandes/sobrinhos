@@ -1,0 +1,26 @@
+.cabecalho-principal {
+    z-index: 9999;
+    width: 100%;
+    top: 0;
+}
+
+.anuncio-principal {
+    width: 100%;
+}
+
+.div_lateral {
+    width: 25%;
+}
+
+.breve-vaga {
+    width: 305px;
+}
+
+.img-vaga a img {
+    width: -webkit-fill-available;
+    height: 150px;
+}
+
+.titulo_vaga a {
+    font-size: 1rem;
+}
