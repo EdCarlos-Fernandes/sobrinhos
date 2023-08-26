@@ -1,0 +1,38 @@
+.footer{
+    background-color: #122f51;
+    color: #17a7a8;
+    padding: 50px 0 50px 0;
+}
+.img_cima {
+    height: 30px;
+    width: 30px;
+}
+
+
+.menu--footer--h1{
+    border-bottom: 2px solid aliceBlue;
+    padding: 10px 25px 10px 0;
+    font-size: 1.5rem !important;
+}
+.menu--footer--ul {
+    list-style: none;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.menu--footer--ul li a {
+    text-decoration: none;
+    color: aliceblue;
+    transition: All 0.2s ease ;
+}
+.menu--footer--ul li a:hover {
+    color: #17a7a8;
+    text-decoration: underline;
+}
+
+
+
+
+.ultimo-footer {
+    background-color: #17a7a8;
+    color: aliceblue;
+}
