@@ -1,26 +1,37 @@
-<?php 
-    ini_set('display_errors', 1);
+<?php
+    ini_set('display_errors', 0);
     error_reporting(E_ALL);
     require_once '../_config/config.php';
     require_once '../_config/data.php';
 
-    if(isset($_SESSION["numLogin"])){
-        if(isset($_GET["num"])){
-            $n1=$_GET["num"];
-            
-        }else if(isset($_POST["num"])){
-            $n1=$_POST["num"];
+    header("Cache-Control: no-cache, no-store, must-revalidate");
+
+    // Variável para controlar o redirecionamento
+    $redirecionar = false;
+
+    // Verifica se a variável de sessão "numLogin" está definida
+    if (isset($_SESSION["numLogin"])) {
+        // Valida e filtra o parâmetro "num"
+        $n1 = filter_input(INPUT_GET, "num", FILTER_SANITIZE_STRING);
+        $n2 = $_SESSION["numLogin"];
+
+        if ($n1 !== $n2) {
+            $redirecionar = true;
         }
-        
-        $n2=$_SESSION["numLogin"];
-        
-        if($n1!=$n2){
-            header("Location: $linkSite/index.php");
+    }
+
+    // Redirecionamento se necessário
+    if ($redirecionar) {
+        // Verifica se as variáveis de sessão estão definidas antes de usá-las nos parâmetros
+        if (isset($_SESSION['numLogin']) && isset($_SESSION['username'])) {
+            // Escapa as variáveis de saída para prevenir XSS
+            $numLogin = htmlspecialchars($_SESSION['numLogin'], ENT_QUOTES, 'UTF-8');
+            $username = htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8');
+            
+            $redirectUrl = "$url/painelUser/dashboard.php?num=$numLogin&id=$username";
+            header("Location: $redirectUrl");
             exit();
         }
-    } else if(!isset($_SESSION["numLogin"])){
-        header("Location: $linkSite/index.php");
-        exit();
     }
 ?>
 
@@ -149,20 +160,20 @@
                 <div class="owl-carousel owl-theme full-width owl-carousel-dash portfolio-carousel"
                   id="owl-carousel-basic">
                   <div class="item">
-                    <img src="assets/images/dashboard/Rectangle.jpg" alt="">
+                    <img src="<?php echo $linkSite ?>/_layout/assets/images/dashboard/Rectangle.jpg" alt="">
                   </div>
                   <div class="item">
-                    <img src="assets/images/dashboard/Img_5.jpg" alt="">
+                    <img src="<?php echo $linkSite ?>/_layout/assets/images/dashboard/Img_5.jpg" alt="">
                   </div>
                   <div class="item">
-                    <img src="assets/images/dashboard/img_6.jpg" alt="">
+                    <img src="<?php echo $linkSite ?>/_layout/assets/images/dashboard/img_6.jpg" alt="">
                   </div>
                 </div>
                 <div class="d-flex py-4">
                   <div class="preview-list w-100">
                     <div class="preview-item p-0">
                       <div class="preview-thumbnail">
-                        <img src="assets/images/faces/face12.jpg" class="rounded-circle" alt="">
+                        <img src="<?php echo $linkSite ?>/_layout/assets/images/faces/face12.jpg" class="rounded-circle" alt="">
                       </div>
                       <div class="preview-item-content d-flex flex-grow">
                         <div class="flex-grow">
@@ -232,7 +243,7 @@
                 <div class="preview-list">
                   <div class="preview-item border-bottom">
                     <div class="preview-thumbnail">
-                      <img src="assets/images/faces/face6.jpg" alt="image" class="rounded-circle" />
+                      <img src="<?php echo $linkSite ?>/_layout/assets/images/faces/face6.jpg" alt="image" class="rounded-circle" />
                     </div>
                     <div class="preview-item-content d-flex flex-grow">
                       <div class="flex-grow">
@@ -246,7 +257,7 @@
                   </div>
                   <div class="preview-item border-bottom">
                     <div class="preview-thumbnail">
-                      <img src="assets/images/faces/face8.jpg" alt="image" class="rounded-circle" />
+                      <img src="<?php echo $linkSite ?>/_layout/assets/images/faces/face8.jpg" alt="image" class="rounded-circle" />
                     </div>
                     <div class="preview-item-content d-flex flex-grow">
                       <div class="flex-grow">
@@ -260,7 +271,7 @@
                   </div>
                   <div class="preview-item border-bottom">
                     <div class="preview-thumbnail">
-                      <img src="assets/images/faces/face9.jpg" alt="image" class="rounded-circle" />
+                      <img src="<?php echo $linkSite ?>/_layout/assets/images/faces/face9.jpg" alt="image" class="rounded-circle" />
                     </div>
                     <div class="preview-item-content d-flex flex-grow">
                       <div class="flex-grow">
@@ -274,7 +285,7 @@
                   </div>
                   <div class="preview-item border-bottom">
                     <div class="preview-thumbnail">
-                      <img src="assets/images/faces/face11.jpg" alt="image" class="rounded-circle" />
+                      <img src="<?php echo $linkSite ?>/_layout/assets/images/faces/face11.jpg" alt="image" class="rounded-circle" />
                     </div>
                     <div class="preview-item-content d-flex flex-grow">
                       <div class="flex-grow">

@@ -1,21 +1,35 @@
-<?php 
-    ini_set('display_errors', 1);
+<?php
+    ini_set('display_errors', 0);
     error_reporting(E_ALL);
     require_once '../_config/config.php';
     require_once '../_config/data.php';
 
-    if(isset($_SESSION["numLogin"])){
-        if(isset($_GET["num"])){
-            $n1=$_GET["num"];
-            
-        }else if(isset($_POST["num"])){
-            $n1=$_POST["num"];
+    header("Cache-Control: no-cache, no-store, must-revalidate");
+
+    // Variável para controlar o redirecionamento
+    $redirecionar = false;
+
+    // Verifica se a variável de sessão "numLogin" está definida
+    if (isset($_SESSION["numLogin"])) {
+        // Valida e filtra o parâmetro "num"
+        $n1 = filter_input(INPUT_GET, "num", FILTER_SANITIZE_STRING);
+        $n2 = $_SESSION["numLogin"];
+
+        if ($n1 !== $n2) {
+            $redirecionar = true;
         }
-        
-        $n2=$_SESSION["numLogin"];
-        
-        if($n1!=$n2){
-            header("Location: $url/index.php");
+    }
+
+    // Redirecionamento se necessário
+    if ($redirecionar) {
+        // Verifica se as variáveis de sessão estão definidas antes de usá-las nos parâmetros
+        if (isset($_SESSION['numLogin']) && isset($_SESSION['username'])) {
+            // Escapa as variáveis de saída para prevenir XSS
+            $numLogin = htmlspecialchars($_SESSION['numLogin'], ENT_QUOTES, 'UTF-8');
+            $username = htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8');
+            
+            $redirectUrl = "$url/paginas/contato.php?num=$numLogin&id=$username";
+            header("Location: $redirectUrl");
             exit();
         }
     }
@@ -27,14 +41,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $titulo ?> - INICIO</title>
+    <title><?php echo $titulo ?> - CONTATO</title>
+    <?php 
+        require_once dirname(__DIR__) . '/_layout/head.php';
+    ?>
 </head>
 
 <body>
     <header style="background-color: #000;">
         <?php 
             require_once dirname(__DIR__) . '/_layout/cabecalho.php';
-            require_once dirname(__DIR__) . '/_layout/head.php';
         ?>
     </header>
 

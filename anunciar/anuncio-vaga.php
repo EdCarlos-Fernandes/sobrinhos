@@ -1,39 +1,50 @@
 <?php
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
+    ini_set('display_errors', 0); // Não exibir erros na saída
+    error_reporting(E_ALL); // Reportar todos os tipos de erro
+
     require_once '../_config/config.php';
     require_once '../_config/conx.php';
     require_once '../_config/data.php';
 
+    // Configuração do fuso horário
     date_default_timezone_set('America/Sao_Paulo');
 
-    $id = $_GET['id'];
-
-    if(isset($_SESSION["numLogin"])){
-        if(isset($_GET["num"])){
-            $n1=$_GET["num"];
+    // Verificar se o ID foi fornecido via GET
+    if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+        $id = intval($_GET['id']);
+        
+        // Verificar autenticação do usuário
+        if (isset($_SESSION["numLogin"])) {
+            $n1 = isset($_GET["num"]) ? $_GET["num"] : (isset($_POST["num"]) ? $_POST["num"] : null);
+            $n2 = $_SESSION["numLogin"];
             
-        }else if(isset($_POST["num"])){
-            $n1=$_POST["num"];
+            if ($n1 !== $n2) {
+                header("Location: $linkSite/anunciar/anuncio-vaga.php?id=$id");
+                exit();
+            }
         }
-        
-        $n2=$_SESSION["numLogin"];
-        
-        if($n1!=$n2){
-            header("Location: $linkSite/anunciar/anuncio-vaga.php?id=$id");
+
+        // Recuperar informações do banco de dados
+        $sql = "SELECT * FROM tb_cadastro WHERE id=?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $exibe = mysqli_fetch_assoc($result);
+        } else {
+            // Tratar se o registro não for encontrado
+            echo "<script>alert('O registro não foi encontrado.'); window.location.href = '$linkSite/index.php';</script>";
             exit();
         }
+    } else {
+        // Tratar caso o ID não seja válido
+        echo "<script>alert('ID inválido.'); window.location.href = '$linkSite/index.php';</script>";
+        exit();
     }
-
-    if(isset($_GET['id'])){
-        $id = $_GET['id'];
-
-        $sql = "SELECT * FROM tb_cadastro WHERE id={$id}";
-                        
-        $result = mysqli_query($conn, $sql);
-        $exibe = mysqli_fetch_array($result);
-    }            
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -41,14 +52,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $titulo ?> - INICIO</title>
+    <title><?php echo $titulo ?> - Anúncio Vaga</title>
+    <?php 
+        require_once dirname(__DIR__) . '/_layout/head.php';
+    ?>
 </head>
 
 <body>
     <header style="background-color: #000;">
         <?php 
             require_once dirname(__DIR__) . '/_layout/cabecalho.php';
-            require_once dirname(__DIR__) . '/_layout/head.php';
         ?>
     </header>
 

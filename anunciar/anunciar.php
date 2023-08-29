@@ -1,54 +1,62 @@
 <?php 
-    require_once '../_config/config.php';
-    require_once '../_config/conx.php';
-    require_once '../_config/data.php';
+require_once '../_config/config.php';
+require_once '../_config/conx.php';
+require_once '../_config/data.php';
 
-    if(isset($_SESSION["numLogin"])){
-        if(isset($_GET["num"])){
-            $n1=$_GET["num"];
-            
-        }else if(isset($_POST["num"])){
-            $n1=$_POST["num"];
-        }
-        
-        $n2=$_SESSION["numLogin"];
-        
-        if($n1!=$n2){
-            header("Location: $linkSite/index.php");
-            exit();
 
-        }
-    }else{
-        header("Location: $linkSite/index.php");
+// Verificar se o usuário está autenticado
+if (!isset($_SESSION["numLogin"])) {
+    header("Location: $linkSite/index.php");
+    exit();
+}
+
+// Verificar se o número de autenticação corresponde ao da sessão
+if (isset($_GET["num"])) {
+    $n1 = $_GET["num"];
+} elseif (isset($_POST["num"])) {
+    $n1 = $_POST["num"];
+}
+
+$n2 = $_SESSION["numLogin"];
+
+if ($n1 !== $n2) {
+    header("Location: $linkSite/anunciar/anunciar.php");
+    exit();
+}
+
+if (isset($_POST['f_submit'])) {
+    $numLogin = htmlspecialchars($_SESSION['numLogin'], ENT_QUOTES, 'UTF-8');
+    // Validar e filtrar os dados de entrada
+    $nomeV = trim(ucwords(strtolower($_POST['f_nomeV'])));
+    $empresa = empty($_POST['f_nomeE']) ? "Não Informado" : ucfirst(strtolower($_POST['f_nomeE']));
+    $quantidade = intval($_POST['qtdV']);
+    $local = trim(ucfirst(strtolower($_POST['f_local'])));
+    $carga = empty($_POST['f_carga']) ? "Não Informado" : $_POST['f_carga'];
+    $salarioB = empty($_POST['f_salarioB']) ? "Não Informado" : $_POST['f_salarioB'];
+    $tipoV = $_POST['f_tipoV'];
+    $requisitos = empty($_POST['f_req']) ? "Não Informado" : ucfirst(strtolower($_POST['f_req']));
+    $descricao = trim(ucfirst(strtolower($_POST['f_desc'])));
+    $periodo = $_POST['f_periodo'];
+    $email = trim($_POST['f_email']);
+
+    // Usar declarações preparadas para evitar injeção SQL
+    $sql = "INSERT INTO tb_cadastro(nome_V, nome_E, qtd_V, local_T, carga_H, salario_B, tipo_V, requisitos, descricao, periodo_V, email, data_C) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ssissssssss", $nomeV, $empresa, $quantidade, $local, $carga, $salarioB, $tipoV, $requisitos, $descricao, $periodo, $email);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        // Redirecionar para página de sucesso
+        header('Location: anuncioSucesso.php?num=' . $numLogin);
         exit();
+    } else {
+        // Tratar erros de inserção
+        echo "<p class='mensagemEmail'>Erro ao salvar os dados!</p>";
     }
 
-    if(isset($_POST['f_submit'])){
-
-        $nomeV = ucwords(strtolower($_POST['f_nomeV']));
-        $empresa = empty($_POST['f_nomeE']) ? "Não Informado" : ucfirst(strtolower($_POST['f_nomeE']));
-        $quantidade = $_POST['qtdV'];
-        $local = ucfirst(strtolower($_POST['f_local']));
-        $carga = empty($_POST['f_carga']) ? "Não Informado" : $_POST['f_carga'] ;
-        $salarioB = empty($_POST['f_salarioB']) ? "Não Informado": $_POST['f_salarioB'];
-        $tipoV = $_POST['f_tipoV'];
-        $requisitos = empty($_POST['f_req']) ? "Não Informado" :  ucfirst(strtolower($_POST['f_req']));
-        $descricao = ucfirst(strtolower($_POST['f_desc']));
-        $periodo = $_POST['f_periodo'];
-        $email = trim($_POST['f_email']);
-
-        $sql = "INSERT INTO tb_cadastro(nome_V, nome_E, qtd_V, local_T, carga_H, salario_B, tipo_V, requisitos, descricao, periodo_V, email, data_C) VALUES('$nomeV', '$empresa', $quantidade, '$local', '$carga', '$salarioB', '$tipoV', '$requisitos', '$descricao', '$periodo', '$email', NOW())";
-
-        $res = mysqli_query($conn, $sql);
-            
-        $ret = mysqli_affected_rows($conn);
-            
-        if($ret >= 1){
-            Header('Location: anuncioSucesso.php?num='.$_SESSION['numLogin']);
-        } else {
-            echo "<p class='mensagemEmail'>Erro ao salvar os dados!</p>";
-        }
-    }
+    // Fechar declaração e conexão
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,14 +65,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $titulo ?> - INICIO</title>
+    <title><?php echo $titulo ?> - Anúnciar</title>
+    <?php 
+        require_once dirname(__DIR__) . '/_layout/head.php';
+    ?>
 </head>
 
 <body>
     <header style="background-color: #000;">
         <?php 
             require_once dirname(__DIR__) . '/_layout/cabecalho.php';
-            require_once dirname(__DIR__) . '/_layout/head.php';
         ?>
     </header>
 
